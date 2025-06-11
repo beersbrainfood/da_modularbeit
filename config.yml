@@ -1,0 +1,6 @@
+default:
+  hmsense:
+    url: https://hm-sense-influxdb2.kube.cs.hm.edu/
+    token: SdRJ7dJSGPM5eO2ax9tyKBYdAhLXrWu92ZPmvjQYG3gch0WlZkYNC0CsokBAlZ5y8XIbW5Y6fAV9cSEAqk7yKQ==
+    org: hm-sense
+    bucket: raumklimasensoren
