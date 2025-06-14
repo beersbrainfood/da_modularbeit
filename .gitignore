@@ -1,2 +1,7 @@
 config.yml
-#data/
+data/
+
+#R studio
+.Rhistory
+.RData
+.DS_Store
