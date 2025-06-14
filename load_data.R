@@ -13,7 +13,6 @@ token  <- hmsense_config$token
 org    <- hmsense_config$org
 bucket <- hmsense_config$bucket
 
-
 # Compose Flux query
 flux_query <- paste0(
   'from(bucket: "', bucket, '")',
@@ -23,6 +22,7 @@ flux_query <- paste0(
 library(httr)
 
 # Send POST request to InfluxDB
+################# TAKES SOME TIME ##################
 response <- httr::POST(
   url = paste0(url, "api/v2/query?org=", org),
   add_headers(
