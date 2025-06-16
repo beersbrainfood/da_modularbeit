@@ -75,6 +75,46 @@ sensor_tabellen <- lapply(sensor_tabellen, function(df) {
 
 library(dplyr)
 library(stringr)
+evaluate_quality_time <- function(df, column, time_col = "Zeit") {
+  total <- nrow(df)
+  col_data <- df[[column]]
+  
+  if (column == time_col) {
+    # Zeitangaben parsebar?
+    parsed_times <- suppressWarnings(as.POSIXct(gsub("Z$", "", col_data), format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC"))
+    
+    # ➕ Accuracy = gleiche Genauigkeit aller Zeitstempel prüfen
+    time_lengths <- nchar(gsub("Z$", "", col_data))
+    accuracy <- if (length(unique(time_lengths[!is.na(time_lengths)])) == 1) 1 else 0
+    
+    completeness <- mean(!is.na(col_data))  # Keine NAs
+    consistency <- mean(!is.na(parsed_times))  # Konsistent parsebar
+    timeliness <- NA_real_  # Nicht sinnvoll bei Zeit selbst
+    validity <- mean(!tolower(as.character(col_data)) %in% c("err", "error", "nan", "na", ""), na.rm = TRUE)
+    uniqueness <- if (total > 0) length(unique(col_data)) / total else NA_real_
+    
+  } else {
+    # Normale Prüfungen für andere Spalten
+    col_data_num <- suppressWarnings(as.numeric(col_data))
+    accuracy <- if (all(is.na(col_data_num))) NA_real_ else mean(!is.na(col_data_num) & col_data_num > -1e6 & col_data_num < 1e6, na.rm = TRUE)
+    completeness <- mean(!is.na(col_data))
+    consistency <- mean(sapply(col_data, function(x) is.numeric(x) || grepl("^[0-9.-]+$", as.character(x))), na.rm = TRUE)
+    
+    if (time_col %in% names(df)) {
+      times <- as.POSIXct(gsub("Z$", "", df[[time_col]]), format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC")
+      diffs <- diff(times)
+      std <- sd(as.numeric(diffs, units = "secs"), na.rm = TRUE)
+      timeliness <- ifelse(length(diffs) > 1 && !is.na(std) && std < 600, 1, 0)
+    } else {
+      timeliness <- NA_real_
+    }
+    
+    validity <- mean(!tolower(as.character(col_data)) %in% c("err", "error", "nan", "na", ""), na.rm = TRUE)
+    uniqueness <- if (total > 0) length(unique(col_data)) / total else NA_real_
+  }
+  
+  return(c(accuracy, completeness, consistency, timeliness, validity, uniqueness))
+}
 
 evaluate_quality <- function(df, column, time_col = "time") {
   total <- nrow(df)
@@ -108,34 +148,36 @@ check_data_quality <- function(sensor_tabellen, time_col = "Zeit") {
     sensor_name <- names(sensor_tabellen)[i]
     
     cols_to_check <- names(df)[sapply(df, function(x) any(!is.na(x)))]
-    # Zeit-Spalte ausschließen, da sie nur als Timeline dient
-    cols_to_check <- setdiff(cols_to_check, time_col)
+    daten_spalten <- setdiff(cols_to_check, time_col)
     
-    if (length(cols_to_check) == 0) {
-      na_values <- rep(NA_real_, length(dimensions))
-      names(na_values) <- paste0("NA_", dimensions)
-      return(data.frame(sensor = sensor_name, t(na_values), check.names = FALSE))
-    }
-    
-    metrics_list <- lapply(cols_to_check, function(col) {
+    # 1️⃣ Nicht-Zeit-Spalten prüfen
+    metrics_list <- lapply(daten_spalten, function(col) {
       metrics <- evaluate_quality(df, col, time_col = time_col)
       names(metrics) <- paste0(col, "_", dimensions)
       as.data.frame(t(metrics))
     })
     
-    if (length(metrics_list) == 0) {
-      na_values <- rep(NA_real_, length(dimensions))
-      names(na_values) <- paste0("NA_", dimensions)
-      return(data.frame(sensor = sensor_name, t(na_values), check.names = FALSE))
+    metrics_df <- if (length(metrics_list) > 0) do.call(cbind, metrics_list) else NULL
+    
+    # 2️⃣ Zeit-Spalte separat prüfen mit eigener Funktion
+    if (time_col %in% names(df)) {
+      zeit_metrics <- evaluate_quality_time(df, time_col, time_col = time_col)
+      
+      names(zeit_metrics) <- paste0(time_col, "_", dimensions)
+      zeit_df <- as.data.frame(t(zeit_metrics))
+    } else {
+      zeit_df <- as.data.frame(t(setNames(rep(NA_real_, length(dimensions)), paste0(time_col, "_", dimensions))))
     }
     
-    metrics_df <- do.call(cbind, metrics_list)
-    
-    data.frame(sensor = sensor_name, metrics_df, check.names = FALSE)
+    # 3️⃣ Zusammenfügen
+    all_metrics <- cbind(metrics_df, zeit_df)
+    data.frame(sensor = sensor_name, all_metrics, check.names = FALSE)
   })
   
   do.call(rbind, result)
 }
+
+
 
 
 
