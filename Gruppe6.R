@@ -16,7 +16,7 @@ daten_liste <- list()             # Leere Liste für geladene Daten
 
 # Schleife über alle Dateiindizes – Dateien werden nacheinander eingelesen
 for (i in dateianzahl) {
-  dateipfad <- paste0("D:/Data Analytics/Data Engineering/de_ma_group6-main-data/de_ma_group6-main-data/data/influx_block_", i, ".csv")
+  dateipfad <- paste0("data/influx_block_", i, ".csv")
   daten_liste[[i]] <- read.csv(dateipfad)
 }
 
