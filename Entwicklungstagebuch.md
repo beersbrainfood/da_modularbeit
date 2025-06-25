@@ -1,3 +1,12 @@
+feat Aron: Abfrage, Verarbeitung und Speicherung von InfluxDB-Daten in R
+
+- Zugriff auf eine InfluxDB-Instanz über eine Flux-Abfrage realisiert, bei der URL, Token, Organisation und Bucket dynamisch aus einer config.yml geladen werden
+- POST-Anfrage an die InfluxDB mit httr-Paket umgesetzt, inklusive Fehlerprüfung bei fehlgeschlagenem Response (Statuscode ≠ 200)
+- Die Antwort im CSV-Format enthält mehrere Datenblöcke mit jeweils eigenem Header – daher wurde eine Logik zur Blockerkennung über _time-Headerzeilen implementiert
+- Jeder Block wird einzeln gelesen, mit tryCatch auf Lesefehler geprüft und als separate CSV-Datei gespeichert (data/influx_block_<n>.csv)
+- Leere oder fehlerhafte Blöcke werden übersprungen, erfolgreiche Importe inklusive Zeilenanzahl geloggt
+- Der Code ist modular aufgebaut, durch die Konfigurationsdatei leicht anpassbar und vorbereitet für spätere Erweiterungen (z. B. Zeitfilter oder Visualisierungen)
+
 feat Simon: Aufbereitung und Auswählen der relevanten Daten
 
 - Daten aus CSV-Dateien (InfluxDB-Export) eingelesen, gruppiert nach MQTT-Topic (Sensor-ID)
