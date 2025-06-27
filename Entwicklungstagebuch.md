@@ -16,8 +16,7 @@ feat Simon: Bestimmung der Datenqualität anhand der 6 Datenqualitätsdimensione
 
 - Zwei Quality-Evaluation-Funktionen (`evaluate_quality`, `evaluate_quality_time`) implementiert
   zur Bewertung von Accuracy, Completeness, Consistency, Timeliness, Validity und Uniqueness
-- `check_data_quality()` analysiert alle Sensor-Dataframes, berechnet Metriken pro Messwert
-  und ergänzt eine Zusammenfassung der Qualitätsdimensionen pro Sensor (ohne Zeit)
+- `check_data_quality()` ruft die beiden Quality-Evaluation-Funktionen auf und fasst die Ergebnisse in einem Dataframe zusammen. Zusätzlich bildet sie die Mittelwerte der einzelnen Qualitätsdimensionen und der Qualitäten der einzelnen Messwerte. Dabei wird aber Uniqueness für die Messwerte nicht berücksichtigt, da dies hier nicht relevant ist.
 - Ergebnis wird in `data_quality_report.csv` gespeichert
 - Anwendung der beiden Funktionen für jeden Sensordatensatz einzeln
 -`evaluate_quality`: - Accuracy: Wird nicht bestimmt, da Genauigkeit zur Realität nicht
