@@ -31,7 +31,7 @@ und Spaltenauswahl.
 
 ## Vorgehen:
 
-### Abfrage, Verarbeitung und Speicherung von InfluxDB-Daten in R
+### Abfrage, Verarbeitung und Speicherung von InfluxDB-Daten in R (Aron Winter)
 - Zugriff auf eine InfluxDB-Instanz über eine Flux-Abfrage realisiert – URL, Token, Organisation und Bucket werden dynamisch aus der `config.yml` geladen.
 - POST-Anfrage an die InfluxDB mit dem `httr`-Paket umgesetzt, inklusive Fehlerprüfung bei fehlgeschlagenem Response (Statuscode ≠ 200).
 - Die Antwort im CSV-Format enthält mehrere Datenblöcke mit jeweils eigenem Header – daher wurde eine Block-Erkennung über `_time`-Headerzeilen implementiert.
@@ -39,13 +39,13 @@ und Spaltenauswahl.
 - Leere oder fehlerhafte Blöcke werden übersprungen, erfolgreiche Importe inklusive Zeilenanzahl geloggt.
 - Der Code ist modular aufgebaut, über die Konfigurationsdatei leicht anpassbar und vorbereitet für spätere Erweiterungen (z. B. Zeitfilter, Visualisierungen).
 
-### Aufbereitung und Auswahl relevanter Daten
+### Aufbereitung und Auswahl relevanter Daten (Simon Paulus)
 Daten aus den exportierten CSV-Dateien (InfluxDB-Export) eingelesen.
 - Gruppierung der Daten nach MQTT-Topic (Sensor-ID) zur Trennung der einzelnen Sensoren.
 - Transformation der Messwerte vom Long- ins Wide-Format (Pivot).
 - Auswahl und Umbenennung relevanter Spalten für lesbare Analysen und Visualisierungen.
 
-### Bestimmung der Datenqualität anhand der sechs Qualitätsdimensionen
+### Bestimmung der Datenqualität anhand der sechs Qualitätsdimensionen (Simon Paulus)
 - Zwei Funktionen `evaluate_quality()` und `evaluate_quality_time()` zur Bewertung der Datenqualität implementiert.
 - Die Funktion `check_data_quality()` analysiert alle Sensor-DataFrames, berechnet Metriken pro Messgröße und ergänzt eine zusammenfassende Bewertung pro Sensor.
 
@@ -69,7 +69,7 @@ Daten aus den exportierten CSV-Dateien (InfluxDB-Export) eingelesen.
 
 Die Ergebnisse werden als `data_quality_report.csv` gespeichert und stehen für das Dashboard zur Verfügung.
 
-### Erstellung einer Shiny-Dokuseite zur Datenqualitätsbewertung
+### Erstellung einer Shiny-Dokuseite zur Datenqualitätsbewertung (Simon Paulus)
 - Erstellen einer Shiny-Dokuseite in der beschrieben wird, wie die einzelnen Datenqualitätsdimensionen bestimmt werden.
 
 ## Arbeitsorganisation:
