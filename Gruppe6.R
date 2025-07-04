@@ -243,3 +243,11 @@ write.csv(quality_results, "data/data_quality_report.csv", row.names = FALSE)
 
 # Optional im Viewer anzeigen
 View(quality_results)
+
+# ------------------------------------------------------------
+# Sensorendaten bündeln und exportieren
+# ------------------------------------------------------------
+sensor_daten_buendelt <- bind_rows(sensor_tabellen, .id = "Sensor")
+write.csv(sensor_daten_buendelt, "data/sensor_daten_buendelt.csv", row.names = FALSE)
+View(sensor_daten_buendelt)
+
