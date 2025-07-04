@@ -239,7 +239,7 @@ quality_results <- check_data_quality(sensor_tabellen)
 # ------------------------------------------------------------
 # Ergebnis exportieren
 # ------------------------------------------------------------
-write.csv(quality_results, "D:/Data Analytics/Data Engineering/data_quality_report.csv", row.names = FALSE)
+write.csv(quality_results, "data/data_quality_report.csv", row.names = FALSE)
 
 # Optional im Viewer anzeigen
 View(quality_results)
