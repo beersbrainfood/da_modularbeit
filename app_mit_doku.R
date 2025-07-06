@@ -5,8 +5,8 @@ library(DT)
 # -------------------------------
 # Daten laden
 # -------------------------------
-quality_results <- read.csv("D:/Data Analytics/Data Engineering/data_quality_report.csv")
-sensor_data_all <- read.csv("D:/Data Analytics/Data Engineering/sensor_daten_buendelt.csv")
+quality_results <- read.csv("data/data_quality_report.csv")
+sensor_data_all <- read.csv("data/sensor_daten_buendelt.csv")
 
 # Zeitspalte vorbereiten
 sensor_data_all$Zeit <- gsub("Z$", "", sensor_data_all$Zeit)
@@ -211,13 +211,19 @@ ui <- dashboardPage(
               fluidPage(
                 titlePanel("HM-SENSE Dashboard"),
                 
+                
                 fluidRow(
-                  column(12,
-                         selectInput("selected_sensor", "Sensor auswählen:",
-                                     choices = c("Alle", unique(sensor_data_all$Sensor)),
-                                     selected = "Alle")
+                  column(10,
+                         selectizeInput("selected_sensor", "Sensor auswählen:",
+                                        choices = c("Alle", unique(sensor_data_all$Sensor)),
+                                        selected = "Alle",
+                                        multiple = TRUE)
+                  ),
+                  column(2, align = "right",
+                         actionButton("reset_sensor", "Sensorwahl zurücksetzen")
                   )
                 ),
+                
                 
                 br(),
                 
@@ -248,10 +254,19 @@ ui <- dashboardPage(
                 
                 tabsetPanel(
                   
+                  # tabPanel("Alle Sensoren",
+                  #          br(),
+                  #          DTOutput("quality_table")
+                  # ),
+                  
                   tabPanel("Alle Sensoren",
+                           
                            br(),
+                           
+                           # Qualitätstabelle
                            DTOutput("quality_table")
                   ),
+                  
                   
                   tabPanel("Sensor/en im Detail",
                            br(),
@@ -316,10 +331,11 @@ server <- function(input, output, session) {
   
   # Qualitätstabelle
   output$quality_table <- renderDT({
-    df <- if (input$selected_sensor == "Alle") {
+    
+    df <- if ("Alle" %in% input$selected_sensor) {
       quality_results
     } else {
-      subset(quality_results, sensor == input$selected_sensor)
+      subset(quality_results, sensor %in% input$selected_sensor)
     }
     
     datatable(
@@ -358,13 +374,74 @@ server <- function(input, output, session) {
     return(df)
   })
   
+  # output$sensor_detail_table <- renderDT({
+  #   datatable(
+  #     filtered_sensor_data(),
+  #     options = list(scrollX = TRUE, scrollY = "500px", paging = FALSE),
+  #     class = "stripe hover nowrap"
+  #   )
+  # })
+  
   output$sensor_detail_table <- renderDT({
+    req(input$selected_sensor)
+    
+    selected <- setdiff(input$selected_sensor, "Alle")
+    if (length(selected) == 0) {
+      return(datatable(data.frame(Hinweis = "Bitte mindestens einen Sensor auswählen.")))
+    }
+    
+    # Daten filtern
+    df <- subset(sensor_data_all, Sensor %in% selected)
+    
+    # Zeitbereich filtern
+    df <- df[df$Zeit >= as.POSIXct(input$date_range[1], tz = "UTC") &
+               df$Zeit <= as.POSIXct(input$date_range[2], tz = "UTC") + 86399, ]
+    
+    # Uhrzeitbereich filtern
+    from_split <- strsplit(input$time_from, ":")[[1]]
+    to_split   <- strsplit(input$time_to, ":")[[1]]
+    from_min <- as.numeric(from_split[1]) * 60 + as.numeric(from_split[2])
+    to_min   <- as.numeric(to_split[1])   * 60 + as.numeric(to_split[2])
+    
+    zeit_h <- as.numeric(format(df$Zeit, "%H", tz = "UTC"))
+    zeit_m <- as.numeric(format(df$Zeit, "%M", tz = "UTC"))
+    zeit_min <- zeit_h * 60 + zeit_m
+    
+    df <- df[zeit_min >= from_min & zeit_min <= to_min, ]
+    
+    # Gruppiere nach Sensor – jede Seite soll einen Sensor enthalten
+    dfs <- split(df, df$Sensor)
+    max_rows <- max(sapply(dfs, nrow))
+    
+    padded <- lapply(dfs, function(d) {
+      if (nrow(d) < max_rows) {
+        # Fülle mit NA-Zeilen auf
+        n_missing <- max_rows - nrow(d)
+        empty_rows <- d[rep(1, n_missing), ]
+        empty_rows[,] <- NA
+        d <- rbind(d, empty_rows)
+      }
+      return(d)
+    })
+    
+    final_df <- do.call(rbind, padded)
+    
     datatable(
-      filtered_sensor_data(),
-      options = list(scrollX = TRUE, scrollY = "500px", paging = FALSE),
+      final_df,
+      options = list(
+        pageLength = max_rows,
+        scrollX = TRUE,
+        scrollY = "500px",
+        paging = TRUE,
+        ordering = FALSE,
+        lengthChange = FALSE
+      ),
+      rownames = FALSE,
+      filter = "none",
       class = "stripe hover nowrap"
     )
   })
+  
   
   observeEvent(input$reset_date, {
     req(input$selected_sensor)
@@ -378,6 +455,12 @@ server <- function(input, output, session) {
     updateSelectInput(session, "time_from", selected = "00:00")
     updateSelectInput(session, "time_to", selected = "23:30")
   })
+  
+  # Reset-Button für Sensorauswahl
+  observeEvent(input$reset_sensor, {
+    updateSelectizeInput(session, "selected_sensor", selected = character(0))
+  })
+  
 }
 
 # -------------------------------
