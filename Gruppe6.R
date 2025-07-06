@@ -73,7 +73,8 @@ behalten <- c(
   "uplink_message_decoded_payload_humidity",
   "uplink_message_decoded_payload_co2",
   "uplink_message_decoded_payload_light",
-  "uplink_message_decoded_payload_motion"
+  "uplink_message_decoded_payload_motion",
+  "uplink_message_decoded_payload_vdd"
   
 )
 
@@ -87,7 +88,8 @@ sensor_tabellen <- lapply(sensor_tabellen, function(df) {
       Luftfeuchtigkeit = uplink_message_decoded_payload_humidity,
       CO2 = uplink_message_decoded_payload_co2,
       Licht = uplink_message_decoded_payload_light,
-      Bewegung = uplink_message_decoded_payload_motion
+      Bewegung = uplink_message_decoded_payload_motion,
+      Spannung = uplink_message_decoded_payload_vdd
     )
 })
 
