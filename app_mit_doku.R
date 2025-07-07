@@ -1,6 +1,9 @@
 library(shiny)
+library(shinyalert)
 library(shinydashboard)
 library(DT)
+library(dplyr)
+library(lubridate)
 
 # -------------------------------
 # Daten laden
@@ -286,7 +289,7 @@ ui <- dashboardPage(
                            fluidRow(
                              column(12, align = "right",
                                     tags$div(style = "position: fixed; bottom: 20px; right: 20px;",
-                                             actionButton("export_btn", "😄 Export starten", class = "btn btn-primary", disabled = TRUE)
+                                             actionButton("export_btn", "😄 Export starten", class = "btn btn-primary", disabled = FALSE)
                                     )
                              )
                            )
@@ -347,47 +350,11 @@ server <- function(input, output, session) {
   
   # Sensor Detail Tabelle (filtered)
   filtered_sensor_data <- reactive({
-    req(input$selected_sensor, input$date_range)
-    
-    if (input$selected_sensor == "Alle") {
-      return(data.frame(Hinweis = "Bitte einen einzelnen Sensor auswählen."))
-    }
-    
-    df <- subset(sensor_data_all, Sensor == input$selected_sensor)
-    
-    start_dt <- as.POSIXct(input$date_range[1], tz = "UTC")
-    end_dt   <- as.POSIXct(input$date_range[2], tz = "UTC") + 86399
-    
-    df <- df[df$Zeit >= start_dt & df$Zeit <= end_dt, ]
-    
-    from_split <- strsplit(input$time_from, ":")[[1]]
-    to_split   <- strsplit(input$time_to, ":")[[1]]
-    from_min <- as.numeric(from_split[1]) * 60 + as.numeric(from_split[2])
-    to_min   <- as.numeric(to_split[1])   * 60 + as.numeric(to_split[2])
-    
-    zeit_h <- as.numeric(format(df$Zeit, "%H", tz = "UTC"))
-    zeit_m <- as.numeric(format(df$Zeit, "%M", tz = "UTC"))
-    zeit_min <- zeit_h * 60 + zeit_m
-    
-    df <- df[zeit_min >= from_min & zeit_min <= to_min, ]
-    
-    return(df)
-  })
-  
-  # output$sensor_detail_table <- renderDT({
-  #   datatable(
-  #     filtered_sensor_data(),
-  #     options = list(scrollX = TRUE, scrollY = "500px", paging = FALSE),
-  #     class = "stripe hover nowrap"
-  #   )
-  # })
-  
-  output$sensor_detail_table <- renderDT({
     req(input$selected_sensor)
     
     selected <- setdiff(input$selected_sensor, "Alle")
     if (length(selected) == 0) {
-      return(datatable(data.frame(Hinweis = "Bitte mindestens einen Sensor auswählen.")))
+      return(data.frame())  # Gebe leeren Dataframe zurück, falls keine Sensoren ausgewählt sind.
     }
     
     # Daten filtern
@@ -408,6 +375,16 @@ server <- function(input, output, session) {
     zeit_min <- zeit_h * 60 + zeit_m
     
     df <- df[zeit_min >= from_min & zeit_min <= to_min, ]
+    
+    return(df)
+  })
+  
+  output$sensor_detail_table <- renderDT({
+    df <- filtered_sensor_data()
+    
+    if (nrow(df) == 0) {
+      return(datatable(data.frame(Hinweis = "Bitte mindestens einen Sensor auswählen.")))
+    }
     
     # Gruppiere nach Sensor – jede Seite soll einen Sensor enthalten
     dfs <- split(df, df$Sensor)
@@ -440,6 +417,52 @@ server <- function(input, output, session) {
       filter = "none",
       class = "stripe hover nowrap"
     )
+  })
+  
+  observeEvent(input$export_btn, {
+    req(input$frequency)  # ensure frequency is selected
+    
+    data <- filtered_sensor_data()
+    
+    if (nrow(data) == 0) {
+      shinyalert("Kein Export möglich", "Bitte mindestens einen Sensor auswählen.", type = "error")
+      return()
+    }
+    
+    # Split by sensor
+    dfs <- split(data, data$Sensor)
+    
+    # Round down to nearest frequency in minutes
+    freq_min <- as.numeric(input$frequency)
+    
+    # Downsample each sensor separately
+    downsampled <- lapply(names(dfs), function(sensor_name) {
+      sensor_df <- dfs[[sensor_name]]
+      
+      sensor_df <- sensor_df %>%
+        mutate(RoundedTime = floor_date(Zeit, unit = paste(freq_min, "mins"))) %>%
+        group_by(RoundedTime) %>%
+        summarise(across(where(is.numeric), mean, na.rm = TRUE), .groups = "drop") %>%
+        mutate(Sensor = sensor_name)  # Tag with sensor name
+      
+      return(sensor_df)
+    })
+    
+    # Combine into one final data frame
+    final_df <- do.call(rbind, downsampled)
+    
+    # Ensure correct time formatting
+    final_df$RoundedTime <- format(final_df$RoundedTime, "%Y-%m-%d %H:%M:%S")
+    
+    # Move Sensor column to front
+    final_df <- final_df[, c("Sensor", setdiff(names(final_df), "Sensor"))]
+    
+    # Save CSV
+    filename <- paste0("data/export_", format(Sys.time(), "%Y-%m-%d_%H-%M-%S"), ".csv")
+    write.csv(final_df, file = filename, row.names = FALSE)
+    
+    # Show popup
+    shinyalert("Export created", type = "success")
   })
   
   
