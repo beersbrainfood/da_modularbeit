@@ -1,5 +1,8 @@
 library(shiny)
+library(shinyalert)
 library(DT)
+library(dplyr)
+library(lubridate)
 
 # Daten laden
 quality_results <- read.csv("data/data_quality_report.csv")
@@ -177,7 +180,7 @@ ui <- fluidPage(
              fluidRow(
                column(12, align = "right",
                       tags$div(style = "position: fixed; bottom: 20px; right: 20px;",
-                               actionButton("export_btn", "😄 Export starten", class = "btn btn-primary", disabled = TRUE)
+                               actionButton("export_btn", "😄 Export starten", class = "btn btn-primary", disabled = FALSE)
                       )
                )
              )
@@ -335,6 +338,31 @@ server <- function(input, output, session) {
     updateSelectInput(session, "time_from", selected = "00:00")
     updateSelectInput(session, "time_to", selected = "23:30")
     
+  })
+  
+  observeEvent(input$export_btn, {
+    req(input$frequency)  # ensure frequency is selected
+    
+    data <- filtered_sensor_data()
+    
+    if (!"Zeit" %in% colnames(data)) {
+      shinyalert("Kein Export möglich", "Bitte einen Sensor auswählen.", type = "error")
+      return()
+    }
+    
+    # Round down to nearest frequency in minutes
+    freq_min <- as.numeric(input$frequency)
+    
+    data <- data %>%
+      mutate(Zeit = floor_date(Zeit, unit = paste(freq_min, "mins"))) %>%
+      group_by(Zeit) %>%
+      summarise(across(where(is.numeric), mean, na.rm = TRUE), .groups = "drop")  # mean for numeric columns
+    
+    data$Zeit <- format(data$Zeit, "%Y-%m-%d %H:%M:%S")
+    write.csv(data, file = paste0("data/export_", format(Sys.time(), "%Y-%m-%d_%H-%M-%S"), ".csv"))
+    
+    # Show popup
+    shinyalert("Export created", type = "success")
   })
   
 }
