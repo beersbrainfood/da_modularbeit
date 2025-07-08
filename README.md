@@ -62,6 +62,7 @@ setup_install.R                 # Installationsbefehle
 | **RStudio Console**      | **Terminal**            |
 |--------------------------|--------------------------|
 | `source("setup_install.R")` | `Rscript setup_install.R` |
+
 **Was passiert:**
 - Prüfung, ob alle benötigten Pakete installiert sind.
 - Automatische Installation fehlender Pakete.
@@ -73,6 +74,7 @@ setup_install.R                 # Installationsbefehle
 | **RStudio Console**      | **Terminal**            |
 |--------------------------|--------------------------|
 | `source("shiny/01_load_data.R")` | `Rscript shiny/01_load_data.R` |
+
 **Was passiert:**
 - Die in der config.yml Datei hinterlegt Datenbankverbindung wird genutzt um die Daten der letzten 24 Stunden zu laden.
 - ***!Wichtig!:*** Die config.yml Datei wurde nicht in das Git Repository geladen und muss in den Ordner */de_ma_group6* gelegt werden um eine Verbindung zur Datenbank aufzubauen. Um die Funktionalität des Dashboards zu präsentieren, sind im Ordner */de_ma_group6/data* bereits vorgeladene Daten hinterlegt.
@@ -85,6 +87,7 @@ setup_install.R                 # Installationsbefehle
 | **RStudio Console**      | **Terminal**            |
 |--------------------------|--------------------------|
 | `source("shiny/02_prepare_sensor_data.R")` | `Rscript shiny/02_prepara_sensor_data.R` |
+
 **Was passiert:**
 - Umwandlung der Messdaten aus "influx_block_7.csv" in das Wide-Format.
 - Zusammenführung zu einem einheitlichen Zeitraster.
@@ -99,6 +102,7 @@ setup_install.R                 # Installationsbefehle
 | **RStudio Console**      | **Terminal**            |
 |--------------------------|--------------------------|
 | `shiny::runApp("shiny/03_app.R")` | `Rscript -e "shiny::runApp('shiny/03_app.R')"` |
+
 **Was passiert:**
 - Öffnung der Shiny-App in einem RStudio Fenster oder Browserfenster
 
@@ -123,10 +127,12 @@ In diesem Teil der Schritt-für-Schritt Anleitung finden Sie einen Überblick ü
 **Detailansicht:**
 ![Dashboard Detailansicht](README_Screenshots/dashboard_detail.png)
 1. In dem Reiter "Sensor/en im Detail" sehen Sie die Sensoren, welche Sie im Drop-down Menü im Dashboard ausgewählt haben. In dieser Tabelle sehen Sie die aufbereiteten Messwerte der Sensoren.
+
 **Export:**
 ![Dashboard Export](README_Screenshots/dashboard_export.png)
 1. In dem Reiter "Export" sehen Sie ein Drop-down Menü, in dem Sie die Frequenz (in Minuten) für den Export festlegen können.
 2. Mit diesem Button starten Sie den Export und die Datei wird im Ordner  */de_ma_group6/data* gespeichert.
+
 ## Weitere Dokumentationsabschnitte
 
 ### *Lösung für Aufgabe 1*
