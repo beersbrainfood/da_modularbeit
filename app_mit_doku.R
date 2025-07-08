@@ -431,7 +431,7 @@ server <- function(input, output, session) {
     val <- output_kpis()[["Completeness"]]
     valueBox(
       paste0(round(val * 100), " %"),
-      "Vollständigkeit",
+      "Completeness",
       icon = icon("check-circle"),
       color = if (val >= 0.9) "green" else if (val >= 0.75) "yellow" else "red"
     )
@@ -441,7 +441,7 @@ server <- function(input, output, session) {
     val <- output_kpis()[["Validity"]]
     valueBox(
       paste0(round(val * 100), " %"),
-      "Gültigkeit",
+      "Validity",
       icon = icon("clipboard-check"),
       color = if (val >= 0.9) "green" else if (val >= 0.75) "yellow" else "red"
     )
@@ -451,7 +451,7 @@ server <- function(input, output, session) {
     val <- output_kpis()[["Consistency"]]
     valueBox(
       paste0(round(val * 100), " %"),
-      "Konsistenz",
+      "Consistency",
       icon = icon("project-diagram"),
       color = if (val >= 0.9) "green" else if (val >= 0.75) "yellow" else "red"
     )
@@ -461,7 +461,7 @@ server <- function(input, output, session) {
     val <- output_kpis()[["Timeliness"]]
     valueBox(
       paste0(round(val * 100), " %"),
-      "Aktualität",
+      "Timeliness",
       icon = icon("clock"),
       color = if (val >= 0.9) "green" else if (val >= 0.75) "yellow" else "red"
     )
@@ -471,7 +471,7 @@ server <- function(input, output, session) {
     val <- output_kpis()[["Uniqueness"]]
     valueBox(
       paste0(round(val * 100), " %"),
-      "Eindeutigkeit",
+      "Uniqueness",
       icon = icon("fingerprint"),
       color = if (val >= 0.9) "green" else if (val >= 0.75) "yellow" else "red"
     )
