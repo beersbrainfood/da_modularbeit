@@ -11,6 +11,3 @@ installed <- packages %in% rownames(installed.packages())
 if (any(!installed)) {
   install.packages(packages[!installed])
 }
-
-x <- 42
-print(x)
