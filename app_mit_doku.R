@@ -258,17 +258,31 @@ ui <- dashboardPage(
                 tabsetPanel(
                   
                   # tabPanel("Alle Sensoren",
+                  #          
                   #          br(),
+                  #          
+                  #          # Qualitätstabelle
                   #          DTOutput("quality_table")
                   # ),
-                  
                   tabPanel("Alle Sensoren",
+                           
+                           br(),
+                           
+                           # KPI-Kacheln
+                           fluidRow(
+                             valueBoxOutput("kpi_completeness"),
+                             valueBoxOutput("kpi_validity"),
+                             valueBoxOutput("kpi_consistency"),
+                             valueBoxOutput("kpi_timeliness"),
+                             valueBoxOutput("kpi_uniqueness")
+                           ),
                            
                            br(),
                            
                            # Qualitätstabelle
                            DTOutput("quality_table")
                   ),
+                  
                   
                   
                   tabPanel("Sensor/en im Detail",
@@ -332,6 +346,71 @@ server <- function(input, output, session) {
     dimensionen_beschreibung[[input$dimension]]$Messwert
   })
   
+  # Reaktive Funktion zur dynamischen Zählung der Messwerte pro Sensor
+  filtered_sensor_counts <- reactive({
+    req(input$selected_sensor, input$date_range, input$time_from, input$time_to)
+    
+    # Auswahl bereinigen
+    selected <- if ("Alle" %in% input$selected_sensor) {
+      unique(sensor_data_all$Sensor)
+    } else {
+      input$selected_sensor
+    }
+    
+    # Filtere Sensor-Daten
+    df <- sensor_data_all %>%
+      filter(Sensor %in% selected) %>%
+      filter(Zeit >= as.POSIXct(input$date_range[1], tz = "UTC") &
+               Zeit <= as.POSIXct(input$date_range[2], tz = "UTC") + 86399)
+    
+    # Uhrzeitfilter berechnen
+    from_split <- strsplit(input$time_from, ":")[[1]]
+    to_split   <- strsplit(input$time_to, ":")[[1]]
+    from_min <- as.numeric(from_split[1]) * 60 + as.numeric(from_split[2])
+    to_min   <- as.numeric(to_split[1])   * 60 + as.numeric(to_split[2])
+    
+    zeit_h <- as.numeric(format(df$Zeit, "%H", tz = "UTC"))
+    zeit_m <- as.numeric(format(df$Zeit, "%M", tz = "UTC"))
+    zeit_min <- zeit_h * 60 + zeit_m
+    
+    df <- df[zeit_min >= from_min & zeit_min <= to_min, ]
+    
+    # Gruppiere und zähle
+    df %>%
+      group_by(Sensor) %>%
+      summarise(N = n(), .groups = "drop")
+  })
+  
+  # KPI-Auswertung: dynamisch je nach Auswahl und Zeitraum
+  output_kpis <- reactive({
+    req(input$selected_sensor)
+    
+    selected <- if ("Alle" %in% input$selected_sensor) {
+      unique(quality_results$sensor)
+    } else {
+      input$selected_sensor
+    }
+    
+    counts <- filtered_sensor_counts()
+    
+    # Merge mit quality_results
+    kpi_data <- quality_results %>%
+      filter(sensor %in% selected) %>%
+      inner_join(counts, by = c("sensor" = "Sensor"))
+    
+    total_n <- sum(kpi_data$N)
+    
+    kpis <- c("Completeness", "Validity", "Consistency", "Timeliness", "Uniqueness")
+    
+    weighted_kpis <- sapply(kpis, function(kpi) {
+      sum(kpi_data[[kpi]] * kpi_data$N, na.rm = TRUE) / total_n
+    })
+    
+    return(weighted_kpis)
+  })
+  
+  
+  
   # Qualitätstabelle
   output$quality_table <- renderDT({
     
@@ -347,6 +426,57 @@ server <- function(input, output, session) {
       class = "stripe hover nowrap"
     )
   })
+  
+  output$kpi_completeness <- renderValueBox({
+    val <- output_kpis()[["Completeness"]]
+    valueBox(
+      paste0(round(val * 100), " %"),
+      "Vollständigkeit",
+      icon = icon("check-circle"),
+      color = if (val >= 0.9) "green" else if (val >= 0.75) "yellow" else "red"
+    )
+  })
+  
+  output$kpi_validity <- renderValueBox({
+    val <- output_kpis()[["Validity"]]
+    valueBox(
+      paste0(round(val * 100), " %"),
+      "Gültigkeit",
+      icon = icon("clipboard-check"),
+      color = if (val >= 0.9) "green" else if (val >= 0.75) "yellow" else "red"
+    )
+  })
+  
+  output$kpi_consistency <- renderValueBox({
+    val <- output_kpis()[["Consistency"]]
+    valueBox(
+      paste0(round(val * 100), " %"),
+      "Konsistenz",
+      icon = icon("project-diagram"),
+      color = if (val >= 0.9) "green" else if (val >= 0.75) "yellow" else "red"
+    )
+  })
+  
+  output$kpi_timeliness <- renderValueBox({
+    val <- output_kpis()[["Timeliness"]]
+    valueBox(
+      paste0(round(val * 100), " %"),
+      "Aktualität",
+      icon = icon("clock"),
+      color = if (val >= 0.9) "green" else if (val >= 0.75) "yellow" else "red"
+    )
+  })
+  
+  output$kpi_uniqueness <- renderValueBox({
+    val <- output_kpis()[["Uniqueness"]]
+    valueBox(
+      paste0(round(val * 100), " %"),
+      "Eindeutigkeit",
+      icon = icon("fingerprint"),
+      color = if (val >= 0.9) "green" else if (val >= 0.75) "yellow" else "red"
+    )
+  })
+  
   
   # Sensor Detail Tabelle (filtered)
   filtered_sensor_data <- reactive({
