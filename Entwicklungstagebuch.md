@@ -72,6 +72,15 @@ Die Ergebnisse werden als `data_quality_report.csv` gespeichert und stehen für 
 ### Erstellung einer Shiny-Dokuseite zur Datenqualitätsbewertung (Simon Paulus)
 - Erstellen einer Shiny-Dokuseite in der beschrieben wird, wie die einzelnen Datenqualitätsdimensionen bestimmt werden.
 
+### Entwicklung des User Interface in Shiny (Sandra Nguyen)
+- Integration interaktiver Datentabellen: Sensorbezogene und aggregierte Daten werden in scrollbaren Datatables dargestellt. Die Tabellen unterstützen Mehrfachauswahl und reagieren dynamisch auf Filtereingaben.
+- Filterfunktionen: Es wurden verschiedene benutzerfreundliche Filter eingebaut:
+    - Sensorfilter zur Auswahl eines oder mehrerer Sensoren.
+    - Zeitraumfilter zur Einschränkung auf relevante Zeitspannen.
+    - Uhrzeitfilter zur gezielten Analyse bestimmter Tageszeiten.
+    - Zurücksetzen Funktionen
+- Dynamische KPI-Auswertung und -Anzeige: Die Kennzahlen zur Datenqualität (Completeness, Validity, Consistency, Timeliness, Uniqueness) werden anhand der Filterauswahl gewichtet und in ValueBox-Kacheln visuell dargestellt. Die Gewichtung erfolgt auf Basis der Anzahl gültiger Messwerte pro Sensor.
+
 ## Arbeitsorganisation:
 
 -   Aron Winter:
