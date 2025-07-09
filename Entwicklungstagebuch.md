@@ -73,6 +73,7 @@ Die Ergebnisse werden als `data_quality_report.csv` gespeichert und stehen für 
 - Erstellen einer Shiny-Dokuseite in der beschrieben wird, wie die einzelnen Datenqualitätsdimensionen bestimmt werden.
 
 ### Entwicklung des User Interface in Shiny (Sandra Nguyen)
+- Dashboard Wireframes wurden aufgemalt und in Dashboard_Brainstorm_Wireframe.pdf gespeichert.
 - Integration interaktiver Datentabellen: Sensorbezogene und aggregierte Daten werden in scrollbaren Datatables dargestellt. Die Tabellen unterstützen Mehrfachauswahl und reagieren dynamisch auf Filtereingaben.
 - Filterfunktionen: Es wurden verschiedene benutzerfreundliche Filter eingebaut:
     - Sensorfilter zur Auswahl eines oder mehrerer Sensoren.
