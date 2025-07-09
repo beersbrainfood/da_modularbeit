@@ -317,15 +317,19 @@ ui <- dashboardPage(
                            h4("Qualitäts-Heatmap je Sensor"),
                            
                            fluidRow(
-                             column(6,
+                             column(10,
                                     selectizeInput("selected_sensor_heatmap", 
                                                    "Sensor auswählen:",
                                                    choices = unique(quality_results$sensor),
                                                    selected = unique(quality_results$sensor)[1:3],
                                                    multiple = TRUE,
                                                    options = list(placeholder = 'Sensoren wählen oder abwählen'))
+                             ),
+                             column(2, align = "right",
+                                    actionButton("reset_sensor_heatmap", "Sensorwahl zurücksetzen")
                              )
                            ),
+                           
                            
                            plotOutput("quality_heatmap", height = "600px")
                   ),
@@ -641,6 +645,12 @@ server <- function(input, output, session) {
   # })
   
   # 3. Heatmap
+  
+  observeEvent(input$reset_sensor_heatmap, {
+    updateSelectizeInput(session, "selected_sensor_heatmap",
+                         selected = character(0))
+  })
+  
   output$quality_heatmap <- renderPlot({
     req(quality_results, input$selected_sensor_heatmap)
     
