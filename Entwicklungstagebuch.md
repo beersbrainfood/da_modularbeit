@@ -57,7 +57,7 @@ Daten aus den exportierten CSV-Dateien (InfluxDB-Export) eingelesen.
 - **Consistency**: Sind die Werte einheitlich formatiert?
 - **Timeliness**: Sind die zeitlichen Abstände gleichmäßig und plausibel?
 - **Validity**: Sind die Werte numerisch interpretierbar?
-- **Uniqueness**: Wie hoch ist der Anteil eindeutiger Werte? *(optional weglassbar)*
+- **Uniqueness**: Wie hoch ist der Anteil eindeutiger Werte?
 
 ##### Für Zeitangaben (`evaluate_quality_time`)
 - **Accuracy**: Haben alle Zeitstempel die gleiche Genauigkeit (z. B. Stringlänge)?
@@ -94,6 +94,10 @@ Die Ergebnisse werden als `data_quality_report.csv` gespeichert und stehen für 
     - Implementierung eines Reset-Buttons zur einfachen Rücksetzung der Auswahl.
     - Vergleich der Qualitätsmetriken mehrerer Sensoren in einer übersichtlichen Heatmap-Darstellung mit Farbverlaufsskala.
 
+### Integration einer Export-Funktion in Shiny (Aron Winter)
+- Implementierung einer Export-Funktion, mit welcher Nutzer:innen eine .csv Datei exportieren können.
+- Individuell auswählbare zeitliche Frequenz aus vorgegebenen Möglichkeiten.
+
 ## Arbeitsorganisation:
 
 -   Aron Winter:
@@ -104,10 +108,7 @@ Die Ergebnisse werden als `data_quality_report.csv` gespeichert und stehen für 
     -   Stakeholdergespräch.
 -   Eunseo Yi:
     -   Plots erstellen.
-    -   xx
 -   Sandra Nguyen:
     -   Dashboard entwickeln.
-    -   xx
 -   Simon Paulus:
     -   Datenaufbereitung.
-    -   xx
