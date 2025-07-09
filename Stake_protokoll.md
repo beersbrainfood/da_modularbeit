@@ -2,8 +2,11 @@
 
 ## Allgemeine Informationen
 Datum:              25.06.2025
+
 Uhrzeit:            10:00 - 10:30
+
 Raum:               3.013
+
 Teilnehmer:innen:   
 -   Gruppe 6: Aron Winter, Erik Kun, Eunseo Yi, Sandra Nguyen, Simon Paulus
 -   Stakeholderin:  Sarah Brockhaus
@@ -14,7 +17,7 @@ Teilnehmer:innen:
 3. Fragenklärung (17 Minuten)
 
 ### 1. Vorstellungsrunde
-Die Teilnehmer:innen des Stakeholder:innen-Gespräch haben sich jeweils kurz vorgestellt.
+Die Teilnehmer:innen des Stakeholder:innen-Gesprächs haben sich jeweils kurz vorgestellt.
 
 Sarah Brockhaus:
 -   Professorin für Data Science und Angewandte Mathematik
