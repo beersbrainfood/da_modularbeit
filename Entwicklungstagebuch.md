@@ -82,6 +82,18 @@ Die Ergebnisse werden als `data_quality_report.csv` gespeichert und stehen für 
     - Zurücksetzen Funktionen
 - Dynamische KPI-Auswertung und -Anzeige: Die Kennzahlen zur Datenqualität (Completeness, Validity, Consistency, Timeliness, Uniqueness) werden anhand der Filterauswahl gewichtet und in ValueBox-Kacheln visuell dargestellt. Die Gewichtung erfolgt auf Basis der Anzahl gültiger Messwerte pro Sensor.
 
+### Erweiterung des User Interface in Shiny (Eunseo Yi)
+- Sensorbezogene Visualisierung der Datenqualität:
+    Zur detaillierten Analyse der Datenqualität einzelner Sensoren wurde ein interaktives Balkendiagramm entwickelt:
+    - Implementierung eines Dropdown-Menüs zur Auswahl eines Sensors.
+    - Visualisierung der Qualitätsmetriken (Completeness, Validity, Consistency, Timeliness, Uniqueness) für jeden Sensor als normierte Balken (0–1).
+    - Darstellung der Datenqualität getrennt nach Messgrößen (Temperatur, Luftfeuchtigkeit, CO₂-Konzentration, Lichtintensität, Bewegung, Batteriespannung) für eine umfassende Qualitätsübersicht.
+- Vergleichende Heatmap der Datenqualität zwischen Sensoren:
+    Zur übergreifenden Bewertung und zum Vergleich mehrerer Sensoren wurde eine Heatmap-Funktion implementiert:
+    - Auswahl von einem oder mehreren Sensoren mittels Multi-Select Dropdown.
+    - Implementierung eines Reset-Buttons zur einfachen Rücksetzung der Auswahl.
+    - Vergleich der Qualitätsmetriken mehrerer Sensoren in einer übersichtlichen Heatmap-Darstellung mit Farbverlaufsskala.
+
 ## Arbeitsorganisation:
 
 -   Aron Winter:
