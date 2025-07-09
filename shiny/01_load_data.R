@@ -1,9 +1,7 @@
-install.packages(c("httr", "yaml", "jsonlite"))
-
 library(yaml)
 
 # Build full config path
-config <- yaml::read_yaml("config.yml")
+config <- yaml::read_yaml("../config.yml")
 
 # Access nested values
 hmsense_config <- config$default$hmsense

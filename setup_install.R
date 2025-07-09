@@ -3,7 +3,8 @@ packages <- c(
   "httr", "yaml", "jsonlite",
   "dplyr", "tidyr", "lubridate",
   "purrr", "stringr", "tibble",
-  "shiny", "shinyalert", "shinydashboard", "DT"
+  "shiny", "shinyalert", "shinydashboard", "DT",
+  "ggplot"
 )
 
 # Nur fehlende Pakete installieren
