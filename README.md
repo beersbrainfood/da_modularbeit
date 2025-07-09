@@ -124,7 +124,7 @@ Um sicherzustellen, dass alle .R-Dateien richtig ausgeführt werden, muss das Pr
 **Befehle:**
 | **RStudio Console**      | **Terminal**            |
 |--------------------------|--------------------------|
-| `shiny::runApp("shiny/03_app.R")` | `Rscript -e "shiny::runApp('shiny/03_app.R')"` |
+| `shiny::runApp("shiny/app.R")` | `Rscript -e "shiny::runApp('shiny/app.R')"` |
 
 **Was passiert:**
 - Öffnung der Shiny-App in einem RStudio Fenster oder Browserfenster.
