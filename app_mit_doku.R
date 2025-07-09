@@ -4,6 +4,8 @@ library(shinydashboard)
 library(DT)
 library(dplyr)
 library(lubridate)
+library(tidyr)
+library(ggplot2)
 
 # -------------------------------
 # Daten laden
@@ -290,6 +292,44 @@ ui <- dashboardPage(
                            DTOutput("sensor_detail_table")
                   ),
                   
+                  tabPanel("Plots",
+                           br(),
+                           h4("Qualitätsübersicht"),
+                           fluidRow(
+                             column(4,
+                                    uiOutput("sensor_selector_ui")
+                             )
+                           ),
+                           plotOutput("plot_messwerte", height = "400px"),
+                           
+                           # br(),
+                           # h4("Zeitreihe der Datenqualität"),
+                           # fluidRow(
+                           #   column(4,
+                           #          selectInput("selected_metric", "Qualitätsdimension wählen:",
+                           #                      choices = c("Completeness", "Consistency", "Timeliness", "Validity", "Uniqueness"),
+                           #                      selected = "Completeness")
+                           #   )
+                           # ),
+                           # plotOutput("plot_quality_time"),
+                           # 
+                           br(),
+                           h4("Qualitäts-Heatmap je Sensor"),
+                           
+                           fluidRow(
+                             column(6,
+                                    selectizeInput("selected_sensor_heatmap", 
+                                                   "Sensor auswählen:",
+                                                   choices = unique(quality_results$sensor),
+                                                   selected = unique(quality_results$sensor)[1:3],
+                                                   multiple = TRUE,
+                                                   options = list(placeholder = 'Sensoren wählen oder abwählen'))
+                             )
+                           ),
+                           
+                           plotOutput("quality_heatmap", height = "600px")
+                  ),
+                  
                   tabPanel("Export",
                            br(),
                            fluidRow(
@@ -547,6 +587,74 @@ server <- function(input, output, session) {
       filter = "none",
       class = "stripe hover nowrap"
     )
+  })
+  
+  # 1. Qualitätsübersicht
+  output$sensor_selector_ui <- renderUI({
+    req(quality_results)
+    selectInput("selected_sensor_plot", "Sensor wählen:",
+                choices = unique(quality_results$sensor),
+                selected = unique(quality_results$sensor)[1])
+  })
+  
+  output$plot_messwerte <- renderPlot({
+    req(input$selected_sensor_plot)
+    req(quality_results)
+  
+    df <- quality_results[1:37] %>%
+      filter(sensor == input$selected_sensor_plot) %>%
+      pivot_longer(
+        cols = -sensor,
+        names_to = "Dimension",
+        values_to = "Score"
+      ) %>%
+      separate(Dimension, into = c("Messgröße", "Qualitätsdimension"), sep = "_")
+    
+    ggplot(df, aes(x = Messgröße, y = Score, fill = Qualitätsdimension)) +
+      geom_col(position = "dodge") +
+      ylim(0, 1) +
+      labs(
+        title = paste("Qualitätsmetriken für Sensor:", input$selected_sensor_plot),
+        x = "Messgröße",
+        y = "Wert (0-1)",
+        fill = "Qualitätsdimension"
+      ) +
+      theme_light()
+  })
+  # # 2. Zeitverlauf
+  # observe({
+  #   req(input$selected_metric)
+  #   
+  #   metric <- input$selected_metric
+  #   output$plot_quality_time <- renderPlot({
+  #     
+  #     ggplot(quality_results, aes_string(x = time, y = metric)) +
+  #       geom_line() +
+  #       geom_point() + 
+  #       labs(
+  #         title = paste("Sensorqualität –", metric),
+  #         x = "Sensor",
+  #         y = metric
+  #       ) +
+  #       theme_minimal()
+  #   })
+  # })
+  
+  # 3. Heatmap
+  output$quality_heatmap <- renderPlot({
+    req(quality_results, input$selected_sensor_heatmap)
+    
+    filtered_quality <- quality_results[c(1, 38, 39, 40, 41)] %>%
+      filter(sensor %in% input$selected_sensor_heatmap) %>%
+      pivot_longer(-sensor, names_to = "Dimension", values_to = "Score")
+    
+    ggplot(filtered_quality, aes(x = Dimension, y = sensor, fill = Score)) +
+      geom_tile(color = "white") +
+      scale_fill_gradient(low = "pink", high = "skyblue", limits = c(0, 1)) +
+      labs(title = "Heatmap der Qualitätsmetriken pro Sensor",
+           x = "Qualitätsdimension", y = "Sensor", fill = "Score") +
+      theme_minimal(base_size = 14) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   
   observeEvent(input$export_btn, {
