@@ -28,8 +28,11 @@
 
 ```text
 📁 README_Screenhots/               # Ordner für verwendete Screenshots im README
-|--- data_quality_report.csv        # Bewertete Datenqualität pro Sensor
-|--- influx_block_1.csv             # Rohdatenblock mit allgemeinen 
+|--- dashboard_alle.png             # Screenshot für Reiter Alle Sensoren - Daten
+|--- dashboard_detail.png           # Screenshot für Reiter Sensor/en im Detail
+|--- dashboard_export.png           # Screenshot für Reiter Export
+|--- dashboard_plot.png             # Screenshot für Reiter Plot
+|--- dashboard_uebersicht.png       # Screenshot für Reiter Alle Sensoren - Übersicht
 📁 data/                            # Ordner für genutzte und erstellte .csv Dateien
 |---📁 testdaten_hmsense/           # Ordner für gegebene Beispieldaten
     |--- r1.csv                     # Beispieldaten 1
@@ -60,7 +63,7 @@ setup_install.R                     # Installationsbefehle
 
 ## Schritt-für-Schritt-Anleitung
 
-Um die Funktionalität des Datenqualitäts-Dashboards zu zeigen, wurden beispiel .csv Dateien im */data* Ordner gespeichert. Diese Daten enthalten die Sensormesswerte für den Zeitraum von 13.06.2025 - 14.06.2025. Falls mit diesen Daten gearbeitet wird, können die Schritte **3. Daten aus der InfluxDB laden und speichern** und **4. Daten aufbereiten und Datenqualität bewerten** übersprungen werden. 
+Um die Funktionalität des Datenqualitäts-Dashboards zu zeigen, wurden beispiel .csv Dateien im */data* Ordner gespeichert. Diese Daten enthalten die Sensormesswerte für den Zeitraum von 13.06.2025 - 14.06.2025. Eine Unterscheidung nach Raum ist mit den vorhandenen Daten nicht möglich, da man nur die Sensoren eindeutig unterscheiden kann aber die Räume nicht. Falls mit diesen Daten gearbeitet wird, können die Schritte **3. Daten aus der InfluxDB laden und speichern** und **4. Daten aufbereiten und Datenqualität bewerten** übersprungen werden. 
 
 Um die Daten der letzten 24 Stunden zu bekommen muss man die Schritte **3. Daten aus der InfluxDB laden und speichern** und **4. Daten aufbereiten und Datenqualität bewerten** ausführen. **Wichtig** hierbei ist, dass man die config.yml Datei dafür in das Verzeichnis */de_ma_group6* speichern muss, da man diese benötigt um sich mit der InfluxDB zu verbinden. Mit der Ausführung der Schritte 3. und 4. werden die existierenden .csv Dateien in */data* überschrieben.
 
