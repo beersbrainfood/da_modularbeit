@@ -4,7 +4,7 @@ packages <- c(
   "dplyr", "tidyr", "lubridate",
   "purrr", "stringr", "tibble",
   "shiny", "shinyalert", "shinydashboard", "DT",
-  "ggplot"
+  "ggplot2"
 )
 
 # Nur fehlende Pakete installieren
