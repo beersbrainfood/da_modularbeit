@@ -10,8 +10,8 @@ library(ggplot2)
 # -------------------------------
 # Daten laden
 # -------------------------------
-quality_results <- read.csv("data/data_quality_report.csv")
-sensor_data_all <- read.csv("data/sensor_daten_buendelt.csv")
+quality_results <- read.csv("../data/data_quality_report.csv")
+sensor_data_all <- read.csv("../data/sensor_daten_buendelt.csv")
 
 # Zeitspalte vorbereiten
 sensor_data_all$Zeit <- gsub("Z$", "", sensor_data_all$Zeit)
@@ -706,7 +706,7 @@ server <- function(input, output, session) {
     final_df <- final_df[, c("Sensor", setdiff(names(final_df), "Sensor"))]
     
     # Save CSV
-    filename <- paste0("data/export_", format(Sys.time(), "%Y-%m-%d_%H-%M-%S"), ".csv")
+    filename <- paste0("../data/export_", format(Sys.time(), "%Y-%m-%d_%H-%M-%S"), ".csv")
     write.csv(final_df, file = filename, row.names = FALSE)
     
     # Show popup
